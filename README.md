@@ -13,6 +13,16 @@ After :cope
 * readding all quickfix item entries by call append(), this way you can change
   the formatting, eg choose to not show filenames or vertically align the texts
 
+Thus
+
+    foo.txt|20|  bar error at class
+    foo-soo-zat.txt|288|  import failed
+
+gets rewritte like this:
+
+    foo.txt        | 20| bar error at class
+    foo-soo-zat.txt|288| import failed
+
 Usage:
 =======
 
