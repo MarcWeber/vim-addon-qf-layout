@@ -1,70 +1,50 @@
-			              _
-			     __ _ ___| |_ ___  ___
-			    / _` |_  / __/ _ \/ __|
-			   | (_| |/ /| ||  __/ (__
-			    \__,_/___|\__\___|\___|
+vim-addon-qf-layout
 
-                      The quickfix layout cycler for VIM
+A minimal quickfix layout cycler for VIM Marc Weber wants to maintain.
+See credits below. Some additional features might get merged later.
 
-
-How does it work? After opening quickfix window
+How does it work? After cope
   1) make modifiable
   2) %delete
-  3) readding all quickfix item entries by call append()
+  3) readding all quickfix item entries by call append(), this way you can
+     change the formatting, eg choose to not show filenames or vertically
+     align the texts
 
-Step 3 can be customized by you.
-Some sample implementations are used by default.,
-see quickfix_formatters below.
+Usage:
+=======
+  :grep -ri 'something' .
+  put cursor in quickfix window, type \v
 
-Customization: Put in your ~/.vimrc:
+Customization:
+==============
 
-" declare dictionary
-let g:aztec = {}
-" declare order of formatters
-let g:aztec.quickfix_formatters = ['formatter-1', 'formatter-2', ..]
-" which key to use for cycling (cursor must be in quickfix window, is this a nice choice?)
-let g:aztec.lhs_cycle = '\your-left-hand-side-mapping'
-" how many spaces to use for aligning file names.
-" Using too much will require you to break lines, thus use a sane
-" limit
-let g:aztec.file_name_align_max_width = 60
+" This declares the defaults, so just add the keys to .vimrc you want to change
+let g:vim_addon_qf_layout = {}
+let g:vim_addon_qf_layout.quickfix_formatters = [ 'NOP', 'vim_addon_qf_layout#DefaultFormatter', 'vim_addon_qf_layout#FormatterNoFilename', 'vim_addon_qf_layout#Reset' ]
+let g:vim_addon_qf_layout.lhs_cycle = '<buffer> \v'
+let g:vim_addon_qf_layout.file_name_align_max_width = 60
 
-defaults:
+" Optionally you can define your own mappings like this:
+noremap \no_filenames call vim_addon_qf_layout#ReformatWith('vim_addon_qf_layout#FormatterNoFilename')<cr>
 
-	quickfix_formatters:
-	['NOP', 'aztec#DefaultFormatter', 'aztec#FormatterNoFilename', 'quickfix_enhancer#Reset']
 
-	lhs_cycle:
-	<buffer> \v
+======== CREDITS TO Alex Leferry & Info about his original version ================
+credits to
+- Alex Leferry 2 (alexherbo2 TA gmail.com) who showed me the initial
+  implementation and the idea
 
-Optionally you can define your own mappings like this:
-noremap \no_filenames call aztec#ReformatWith('aztec#FormatterNoFilename')<cr>
+His updated version might appear here:
+https://github.com/alexherbo2/vim_addon_qf_layout.vim
 
-NOP means: :cope will not change default layout
-DefaultFormatter: align line numbers and text
-FormatterNoFilename: only show line numbers and text
-Reset: switch back to default
-
-All credits to alexherbo2 who provided both the initial implementation
-and the idea.
-
-maintainers:
-- Alex Leferry 2 (alexherbo2 TA gmail.com)
-- Marc Weber (marco-oweber TA gmx.de)
-
-new repository (to be created)
-https://github.com/alexherbo2/aztec.vim (TODO, create, add MarcWeber as collaborator)
- 
-TODO:
-port missing features from his initial version, make some of the optional
-
-Original version:
+His original version:
 https://bitbucket.org/alexherbo2/dotfiles/src/09080c78ca0c15aeda428cffb98c18c24ed081c0/dead_scripts/quickfix.vim?at=master
-1) set col of cursor
-2) on :cope jump to nearest line
-3) drop columns automatically if lines get too long, eg start by hiding the
-   filename (do this by providing a new formatter function)
-4) provide a sample how to use ruby/python or such?
-5) set quickfix size to number of lines?
+features this minimal version does not implement but his does:
 
-Think about loclist (show me anybody using it before making me work on anysuch .. )
+  1) set col of cursor
+  2) on :cope jump to nearest line
+  3) drop columns automatically if lines get too long, eg start by hiding the
+     filename (do this by providing a new formatter function)
+  4) provide a sample how to use ruby/python or such?
+  5) set quickfix size to number of lines?
+      maybe some more
+  6) limit cols cursor can use

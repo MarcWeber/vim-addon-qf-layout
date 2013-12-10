@@ -1,6 +1,6 @@
-if !exists('g:aztec') | let g:aztec = {} | endif | let s:c = g:aztec
+if !exists('g:vim_addon_qf_layout') | let g:vim_addon_qf_layout = {} | endif | let s:c = g:vim_addon_qf_layout
 
-fun! aztec#Quickfix()
+fun! vim_addon_qf_layout#Quickfix()
   " this is called on setfiletype auto command
 
   let is_quickfix = empty(getloclist(0))
@@ -26,10 +26,10 @@ fun! aztec#Quickfix()
     " Goto Quickfix window--------
     wincmd w
 
-    exec 'noremap '. s:c.lhs_cycle .' :call aztec#Cycle()<cr>'
+    exec 'noremap '. s:c.lhs_cycle .' :call vim_addon_qf_layout#Cycle()<cr>'
 
-    let b:aztec_cycle_id = 0
-    call aztec#ReformatWith(s:c.quickfix_formatters[0])
+    let b:vim_addon_qf_layout_cycle_id = 0
+    call vim_addon_qf_layout#ReformatWith(s:c.quickfix_formatters[0])
 
     let nearest_entry = list[0]
 
@@ -43,15 +43,15 @@ fun! aztec#Quickfix()
 
 endf
 
-fun! aztec#Cycle()
-  if (!exists('b:aztec_cycle_id'))
-    let b:aztec_cycle_id = 0
+fun! vim_addon_qf_layout#Cycle()
+  if (!exists('b:vim_addon_qf_layout_cycle_id'))
+    let b:vim_addon_qf_layout_cycle_id = 0
   endif
-  let b:aztec_cycle_id += 1
-  call aztec#ReformatWith(s:c.quickfix_formatters[b:aztec_cycle_id % len(s:c.quickfix_formatters)])
+  let b:vim_addon_qf_layout_cycle_id += 1
+  call vim_addon_qf_layout#ReformatWith(s:c.quickfix_formatters[b:vim_addon_qf_layout_cycle_id % len(s:c.quickfix_formatters)])
 endf
 
-fun! aztec#ReformatWith(f)
+fun! vim_addon_qf_layout#ReformatWith(f)
   " TODO: switch to quickfix window and switch back if this gets called
   " from somewhere else ..
   if &filetype != 'qf' | echoe "not in quickfix window, not formatting anything (TODO)" | return
@@ -79,7 +79,7 @@ endf
 " This function is also responsible to add lines to buffer.
 " If you want to call a python/ruby implementation it might be most efficient
 " to do the appending in that if_* language
-fun! aztec#DefaultFormatter()
+fun! vim_addon_qf_layout#DefaultFormatter()
   let list = copy(getqflist())
   " not sure whether copy is needed. I once had a segfault.. maybe its
   " obsolete nowadays.
@@ -98,7 +98,7 @@ fun! aztec#DefaultFormatter()
 endf
 
 
-fun! aztec#FormatterNoFilename()
+fun! vim_addon_qf_layout#FormatterNoFilename()
   " same as above, but don't add filename
   let list = copy(getqflist())
   let max_lnum_len     = max(map(copy(list), 'len(v:val.lnum)'))
@@ -106,30 +106,8 @@ fun! aztec#FormatterNoFilename()
   call append('0', map(list, 'printf("%'.max_lnum_len.'S| %s", v:val.lnum, v:val.text)'))
 endf
 
-fun! aztec#Reset()
+fun! vim_addon_qf_layout#Reset()
   " default view
   call setqflist(getqflist())
 endf
 
-" Hold on ──────────────────────────────────────────────────────────────────────
-
-" Hold the cursor between match(expr) and matchend(expr).
-fun! aztec#Interface_hold_on(expr)
-
-  let col  =     col('.')
-  let line = getline('.')
-
-  let [colstart,colend] = [match(line,a:expr),matchend(line,a:expr)]
-
-  if (colstart<0) || (colend<0) | return
-  end
-
-  if (col<colstart)
-    exec 'normal!' colstart . '|'
-  end
-
-  if (col>colend)
-    exec 'normal!' colend . '|'
-  end
-
-endf
