@@ -10,35 +10,15 @@ fun! vim_addon_qf_layout#Quickfix()
     setlocal colorcolumn=
     setlocal nowrap
     setlocal nolist
-    setlocal modifiable
 
-    let list = getqflist()
 
-    if empty(list) | return
-    end
+    if empty(getqflist()) | return | endif
 
-    " Goto the last used window---
-    wincmd W                      |
-    "                             |
-    let pos     =  getpos('.')    |
-    let pos[0]  =   bufnr('%')    |
-    "                             |
-    " Goto Quickfix window--------
-    wincmd w
-
-    exec 'noremap '. s:c.lhs_cycle .' :call vim_addon_qf_layout#Cycle()<cr>'
+    exec 'noremap <buffer> '. s:c.lhs_cycle .' :call vim_addon_qf_layout#Cycle()<cr>'
 
     let b:vim_addon_qf_layout_cycle_id = 0
     call vim_addon_qf_layout#ReformatWith(s:c.quickfix_formatters[0])
 
-    let nearest_entry = list[0]
-
-    " TODO
-    " exec 'cc' nearest_entry.number
-
-    call setpos('.', [0] + pos[1:-1])
-
-    wincmd w
   end
 
 endf
@@ -57,8 +37,11 @@ fun! vim_addon_qf_layout#ReformatWith(f)
   if &filetype != 'qf' | echoe "not in quickfix window, not formatting anything (TODO)" | return
   endif
 
+  let pos =  getpos('.')
   if a:f == 'NOP' | return | endif
   let F = a:f
+
+  setlocal modifiable
 
   " delete old contents (luckily Vim will keep knowing which line belongs to
   " what entry ..
@@ -66,8 +49,12 @@ fun! vim_addon_qf_layout#ReformatWith(f)
 
   call call(F, [])
 
+  call setpos('.', [0] + pos[1:-1])
+
+  setlocal nomodifiable
+
   " allow :q without vim yelling
-  set nomodified
+  setlocal nomodified
 endf
 
 " ===================== SAMPLE FORMATTERS

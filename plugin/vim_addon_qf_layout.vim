@@ -1,3 +1,6 @@
+if exists("g:loaded_vim_addon_qf_layout") | finish | endif
+let g:loaded_vim_addon_qf_layout = 1
+
 if !exists('g:vim_addon_qf_layout') | let g:vim_addon_qf_layout = {} | endif | let s:c = g:vim_addon_qf_layout
 
 " order of formatters to be used when cycling
