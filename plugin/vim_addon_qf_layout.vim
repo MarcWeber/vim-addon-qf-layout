@@ -15,5 +15,9 @@ let s:c.file_name_align_max_width = 60
 
 let s:c.hold_cursor = get(s:c, 'hold_cursor', 1)
 
+if !exists("g:vim_addon_qf_layout_temp_formatter")
+   let g:vim_addon_qf_layout_temp_formatter = ""
+endif
+
 " whenever the quickfix window gets opened, enhance it:
 auto filetype qf call vim_addon_qf_layout#Quickfix()
