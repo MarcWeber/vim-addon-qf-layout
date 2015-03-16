@@ -16,8 +16,22 @@ fun! vim_addon_qf_layout#Quickfix()
 
     exec 'noremap <buffer> '. s:c.lhs_cycle .' :call vim_addon_qf_layout#Cycle()<cr>'
 
-    let b:vim_addon_qf_layout_cycle_id = 0
-    call vim_addon_qf_layout#ReformatWith(s:c.quickfix_formatters[0])
+    if !empty(g:vim_addon_qf_layout_temp_formatter)
+      call vim_addon_qf_layout#ReformatWith(g:vim_addon_qf_layout_temp_formatter)
+      " clear the filter after used to avoid issues with cnext/cold
+      let g:vim_addon_qf_layout_temp_formatter = ""
+      " g:vim_addon_qf_layout_temp_formatter can be used to set specific formats
+      " depending on the quickfix command used through QuickFixCmdPost. It is
+      " not possible to use a dict with custom formatters for each command
+      " because 1) the w:quickfix_title is set only after the relevant autocmds
+      " are executed and 2) w:quickfix_title isn't updated with cnext and cold.
+      " Maybe this can be improved after this patch is completed/accepted:
+      " https://groups.google.com/forum/#!topic/vim_dev/X7VVPd4Do5s
+      let b:vim_addon_qf_layout_cycle_id = -1
+    else
+      let b:vim_addon_qf_layout_cycle_id = 0
+      call vim_addon_qf_layout#ReformatWith(s:c.quickfix_formatters[0])
+    endif
 
   end
 
