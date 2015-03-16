@@ -23,6 +23,11 @@ gets rewritte like this:
     foo.txt        | 20| bar error at class
     foo-soo-zat.txt|288| import failed
 
+or this (no file names):
+
+    | 20| bar error at class - very long message which only fits in one line if 
+    |288| hide the filename ..
+
 Usage:
 =======
 
