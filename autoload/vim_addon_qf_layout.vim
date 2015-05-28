@@ -13,6 +13,7 @@ fun! vim_addon_qf_layout#Quickfix()
 
 
     if empty(getqflist()) | return | endif
+    redraw!
 
     exec 'noremap <buffer> '. s:c.lhs_cycle .' :call vim_addon_qf_layout#Cycle()<cr>'
 
