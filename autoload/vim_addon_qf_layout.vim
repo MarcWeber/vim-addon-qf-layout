@@ -15,7 +15,7 @@ fun! vim_addon_qf_layout#Quickfix()
     if empty(getqflist()) | return | endif
     redraw!
 
-    exec 'noremap <buffer> '. s:c.lhs_cycle .' :call vim_addon_qf_layout#Cycle()<cr>'
+    exec 'noremap <silent> <buffer> '. s:c.lhs_cycle .' :call vim_addon_qf_layout#Cycle()<cr>'
 
     if !empty(g:vim_addon_qf_layout_temp_formatter)
       call vim_addon_qf_layout#ReformatWith(g:vim_addon_qf_layout_temp_formatter)
@@ -30,8 +30,12 @@ fun! vim_addon_qf_layout#Quickfix()
       " https://groups.google.com/forum/#!topic/vim_dev/X7VVPd4Do5s
       let b:vim_addon_qf_layout_cycle_id = -1
     else
-      let b:vim_addon_qf_layout_cycle_id = 0
-      call vim_addon_qf_layout#ReformatWith(s:c.quickfix_formatters[0])
+      " vim_addon_qf_layout#Reset() triggers autocmd filetype; thus the
+      " existence of the variable is used to determine if it is the first one.
+      if (!exists('b:vim_addon_qf_layout_cycle_id'))
+        let b:vim_addon_qf_layout_cycle_id = 0
+        call vim_addon_qf_layout#ReformatWith(s:c.quickfix_formatters[0])
+      endif
     endif
 
   end
@@ -43,7 +47,9 @@ fun! vim_addon_qf_layout#Cycle()
     let b:vim_addon_qf_layout_cycle_id = 0
   endif
   let b:vim_addon_qf_layout_cycle_id += 1
-  call vim_addon_qf_layout#ReformatWith(s:c.quickfix_formatters[b:vim_addon_qf_layout_cycle_id % len(s:c.quickfix_formatters)])
+  let formatter = s:c.quickfix_formatters[b:vim_addon_qf_layout_cycle_id % len(s:c.quickfix_formatters)]
+  call vim_addon_qf_layout#ReformatWith(formatter)
+  echom '[addon-qf-layout] cycle: ' . formatter
 endf
 
 fun! vim_addon_qf_layout#ReformatWith(f)
@@ -60,9 +66,12 @@ fun! vim_addon_qf_layout#ReformatWith(f)
 
   " delete old contents (luckily Vim will keep knowing which line belongs to
   " what entry ..
-  %delete
-
+  let last_line = line('$')
+  silent %delete
   call call(F, [])
+  if line('$') > last_line 
+    silent $delete " remove the extra line after the appended text
+  endif
 
   call setpos('.', [0] + pos[1:-1])
 
