@@ -13,17 +13,9 @@ fun! vim_addon_qf_layout#Quickfix()
 
   exec 'noremap <silent> <buffer> '. s:c.lhs_cycle .' :call vim_addon_qf_layout#Cycle()<cr>'
 
-  if !empty(g:vim_addon_qf_layout_temp_formatter)
-    call vim_addon_qf_layout#ReformatWith(g:vim_addon_qf_layout_temp_formatter)
-    " clear the filter after used to avoid issues with cnext/cold
-    let g:vim_addon_qf_layout_temp_formatter = ""
-    " g:vim_addon_qf_layout_temp_formatter can be used to set specific formats
-    " depending on the quickfix command used through QuickFixCmdPost. It is
-    " not possible to use a dict with custom formatters for each command
-    " because 1) the w:quickfix_title is set only after the relevant autocmds
-    " are executed and 2) w:quickfix_title isn't updated with cnext and cold.
-    " Maybe this can be improved after this patch is completed/accepted:
-    " https://groups.google.com/forum/#!topic/vim_dev/X7VVPd4Do5s
+  let spec_formatter = vim_addon_qf_layout#GetSpecFormatter()
+  if !empty(spec_formatter)
+    call vim_addon_qf_layout#ReformatWith(spec_formatter)
     let b:vim_addon_qf_layout_cycle_id = -1
   else
     " vim_addon_qf_layout#Reset() triggers autocmd filetype; thus the
@@ -115,25 +107,53 @@ fun! vim_addon_qf_layout#Reset()
   call vim_addon_qf_layout#SetList(vim_addon_qf_layout#GetList())
 endf
 
-
+"return the result from either getqflist() or getloclist()
 fun! vim_addon_qf_layout#GetList()
-  let loc_list = getloclist(0)
-  if empty(loc_list)
-    " quickfix
-    return getqflist()
+  if vim_addon_qf_layout#isLocList()
+    return getloclist(0)
   else
-    " location-list
-    return loc_list
+    return getqflist()
   endif
 endf
 
 
+"apply the right choice from either setqflist() or setloclist()
 fun! vim_addon_qf_layout#SetList(list)
-  if empty(getloclist(0))
-    " quickfix
-    call setqflist(a:list)
-  else
-    " location-list
+  if vim_addon_qf_layout#isLocList()
     call setloclist(0, a:list)
+  else
+    call setqflist(a:list)
+  endif
+endf
+
+"return true if the current window is a location list
+fun! vim_addon_qf_layout#isLocList()
+  if !empty(getloclist(0))
+    return 1
+  endif
+  return 0
+endf
+
+"return specific formatter for location list or quickfix when available
+fun! vim_addon_qf_layout#GetSpecFormatter()
+  " clear the filter after used to avoid issues with cnext/cold
+  " w:vim_addon_qf_layout_temp_formatter can be used to set specific formats
+  " depending on the quickfix command used through QuickFixCmdPost. It is
+  " not possible to use a dict with custom formatters for each command
+  " because 1) the w:quickfix_title is set only after the relevant autocmds
+  " are executed and 2) w:quickfix_title isn't updated with cnext and cold.
+  " Maybe this can be improved after this patch is completed/accepted:
+  " https://groups.google.com/forum/#!topic/vim_dev/X7VVPd4Do5s
+
+  if exists('w:vim_addon_qf_layout_temp_formatter')
+    let formatter = w:vim_addon_qf_layout_temp_formatter
+    unlet w:vim_addon_qf_layout_temp_formatter
+    return formatter
+  else
+    " if the quickfix/location list was closed then the specific formatter may
+    " be present on the previous window
+    let formatter = getwinvar(winnr('#'),'vim_addon_qf_layout_temp_formatter')
+    call setwinvar(winnr('#'),'vim_addon_qf_layout_temp_formatter', '')
+    return formatter
   endif
 endf
