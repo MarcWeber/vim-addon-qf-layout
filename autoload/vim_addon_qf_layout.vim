@@ -128,7 +128,13 @@ endf
 
 "return true if the current window is a location list
 fun! vim_addon_qf_layout#isLocList()
-  if !empty(getloclist(0))
+  " it is necessary to check the current filename a location list may have no
+  " elements (e.g.: lgrep return no matches)
+  redir => l:ctrl_g
+  silent file
+  redir END
+
+  if !empty(getloclist(0)) || l:ctrl_g =~ 'Location List'
     return 1
   endif
   return 0
