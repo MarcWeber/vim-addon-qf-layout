@@ -81,7 +81,7 @@ fun! vim_addon_qf_layout#DefaultFormatter()
   " obsolete nowadays.
 
   for l in list
-    let l.filename = bufname(l.bufnr)
+    let l.filename = fnamemodify(bufname(l.bufnr), ":t")
   endfor
 
   let max_filename_len = max(map(copy(list), 'len(v:val.filename)' ))
