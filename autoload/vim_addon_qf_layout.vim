@@ -131,7 +131,7 @@ fun! vim_addon_qf_layout#isLocList()
   " it is necessary to check the current filename a location list may have no
   " elements (e.g.: lgrep return no matches)
   redir => l:ctrl_g
-  silent file
+  silent exe "normal! \<C-G>"
   redir END
 
   if !empty(getloclist(0)) || l:ctrl_g =~ 'Location List'
